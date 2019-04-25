@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>花瓣飘落</title>
+		<script src="../public/js/three-r03.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../public/js/OrbitControls.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<style type="text/css">
+		body{
+			margin: 0;
+			overflow: hidden;
+		}
+	</style>
+	<body>
+		<script type="text/javascript">
+			// 场景
+			let scene, camera, renderer, light, controls, points;
+			
+			// 场景初始化
+			function initScene() {
+				scene = new THREE.Scene();
+			}
+			
+			// 相机初始化
+			function initCamera() {
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
+				// 相机放置位置
+				camera.position.set(30, 0, 90);
+				camera.lookAt(new THREE.Vector3(0, 0, 0));
+			}
+			
+			// 渲染器初始化
+			function initRender() {
+				renderer = new THREE.WebGLRenderer({
+					antialias: true // 是否抗锯齿
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight)
+				document.body.appendChild(renderer.domElement);
+			}
+			
+			function initLight() {
+				light = new THREE.AmbientLight( 0x404040 ); // soft white light
+				scene.add( light );
+			}
+			
+			function initControls() {
+				controls = new THREE.OrbitControls(camera, renderer.domElement)
+			}
+			
+			// 场景内容
+			function initContent() {
+				// 加载器-贴图图片
+				let texture = new THREE.TextureLoader().load('./sw.png');
+				
+				let geometry = new THREE.Geometry();
+				
+				// 定义点材质
+				let pointsMeterial = new THREE.PointsMaterial({
+					size: 2, // 粒子大小
+					opacity: 0.9, // 透明度
+					map: texture, // 使用texture中的数据来设置点的颜色
+					sizeAttenuation: true, // 粒子大小是否随距离而改变
+					depthTest: true, // 深度测试
+					// blending: THREE.AdditiveBlending, // 是否混合
+					// transparent: true // 是否透明
+				})
+				
+				// 坐标出现的浮动范围变量
+				let range = 100;
+				for (let i = 0; i < 1500; i++) {
+					// 三维向量
+					let vertice = new THREE.Vector3(
+						Math.random() * range - range / 2,
+						Math.random() * range * 1.5,
+						Math.random() * range - range / 2,
+					);
+					// x, y, z方向的移动速度
+					vertice.velocityY = 0.1 + Math.random() / 3;
+					vertice.velocityX = (Math.random() - 0.5) / 3;
+					vertice.velocityZ = 0.1 + Math.random() / 3;
+					
+					// 加入geometry
+					geometry.vertices.push(vertice);
+				}
+				
+				// 内容居中
+				geometry.center();
+				
+				// 使用点实体
+				points = new THREE.Points(geometry, pointsMeterial);
+				points.position.y = -30;
+				scene.add(points);
+			}
+			
+			// 数据更新
+			function update() {
+				let vertices = points.geometry.vertices;
+				vertices.forEach(function(v){
+					// 改变粒子当前位置
+					// 终点位置 = 当前位置 - 粒子的移动速度
+					v.y = v.y - (v.velocityY);
+					v.x = v.x - (v.velocityX);
+					v.z = v.z - (v.velocityZ);
+					// 超出临界点时重置或反向移动
+					if (v.y <= 0) {v.y = 60;};
+					if (v.x <= -20 || v.x >= 20) {
+						v.velocityX = v.velocityX * -1;
+					}
+					if (v.z <= -40 || v.z >= 40) {
+						v.velocityZ = v.velocityZ * -1;
+					}
+				})
+				
+				// 顶点变动之后需要更新，否则无法实现特效 
+				points.geometry.verticesNeedUpdate = true;
+			}
+			
+			/* 循环渲染 */
+			function animate() {
+				requestAnimationFrame(animate);
+				renderer.render(scene, camera);
+				update();
+			}
+			
+			// 初始化
+			(function() {
+				initScene();
+				initCamera();
+				initRender();
+				initLight();
+				initControls();
+				initContent();
+				animate();
+			})();
+		</script>
+	</body>
+</html>
