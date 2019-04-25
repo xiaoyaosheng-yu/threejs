@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>地球</title>
+		<script src="../public/js/three-r03.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../public/js/OrbitControls.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<style type="text/css">
+		body{
+			margin: 0;
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<body>
+		<script type="text/javascript">
+			var secne, camera, renderer, light, controls, sphere;
+			function initScene() {
+				scene = new THREE.Scene();
+			} 
+			function initCamera() {
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000)
+				// 相机放置位置
+				camera.position.set(30, 0, 90);
+			}
+			
+			// 渲染器初始化
+			function initRender() {
+				renderer = new THREE.WebGLRenderer({
+					antialias: true // 是否抗锯齿
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight)
+				document.body.appendChild(renderer.domElement);
+			}
+			function initLight() {
+				light = new THREE.AmbientLight( 0xffffff ); // soft white light
+				scene.add( light );
+			}
+			function initControls() {
+				controls = new THREE.OrbitControls(camera, renderer.domElement)
+			}
+			
+			// 场景内容
+			function initContent() {
+				
+				var geometry = new THREE.SphereGeometry( 30, 50, 50 );
+				var texture = new THREE.TextureLoader().load( '地球(含云).jpg' );
+				var material = new THREE.MeshLambertMaterial( {
+					map: texture
+				} );
+				sphere = new THREE.Mesh( geometry, material );
+				scene.add( sphere );
+			}
+			
+			/* 循环渲染 */
+			function animate() {
+				requestAnimationFrame(animate);
+				sphere.rotation.y += 0.01;
+				renderer.render(scene, camera);
+			}
+			
+			(function(){
+				initScene();
+				initCamera();
+				initRender();
+				initLight();
+				initControls();
+				initContent();
+				animate();
+			})()
+		</script>
+	</body>
+</html>
