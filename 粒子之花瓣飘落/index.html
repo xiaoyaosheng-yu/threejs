@@ -36,6 +36,7 @@
 					antialias: true // 是否抗锯齿
 				});
 				renderer.setSize(window.innerWidth, window.innerHeight)
+				// render.clearColor(1.0,1.0,1.0,1.0)
 				document.body.appendChild(renderer.domElement);
 			}
 			
@@ -57,7 +58,7 @@
 				
 				// 定义点材质
 				let pointsMeterial = new THREE.PointsMaterial({
-					size: 2, // 粒子大小
+					size: 3, // 粒子大小
 					opacity: 0.9, // 透明度
 					map: texture, // 使用texture中的数据来设置点的颜色
 					sizeAttenuation: true, // 粒子大小是否随距离而改变
